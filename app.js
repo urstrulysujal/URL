@@ -74,9 +74,6 @@ const server = createServer(async (req, res) => {
             return res.end(JSON.stringify({ error: "No URL provided" }));
         }
         let finalShortCode = shortCode || crypto.randomBytes(4).toString('hex');
-        while (links[finalShortCode]) {
-            finalShortCode = crypto.randomBytes(4).toString('hex');
-        }
         links[finalShortCode] = url;
         await saveLinks(links);
         console.log(`Shortened URL: ${url} to code: ${finalShortCode}`);
