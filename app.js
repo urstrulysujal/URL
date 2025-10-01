@@ -60,7 +60,7 @@ const server = createServer(async (req, res) => {
     }
   }
 
-  if(req.method === "POST" && req.url === "/shorten") {
+  if(req.method === "POST" && req.url === "/api/shorten") {
     const links = await loadLinks();
     let body = '';
     req.on('data', chunk => {
