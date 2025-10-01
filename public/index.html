@@ -291,17 +291,17 @@
     <div class="container">
         <h1>⚡ URL Shortener</h1>
         <p class="subtitle">Transform long URLs into short, shareable links</p>
-        <form id="shorten-form">
-            <div>
-                <label for="url">🔗 Enter URL:</label>
-                <input type="url" name="url" id="url" placeholder="https://example.com/very-long-url" required />
-            </div>
-            <div>
-                <label for="shortCode">✨ Custom Short Code:</label>
-                <input type="text" name="shortCode" id="shortCode" placeholder="my-link" required />
-            </div>
-            <button type="submit">Shorten URL</button>
-        </form>
+            <form id="shorten-form">
+                <div>
+                    <label for="url">🔗 Enter URL:</label>
+                    <input type="url" name="url" id="url" placeholder="https://example.com/very-long-url" required />
+                </div>
+                <div>
+                    <label for="shortCode">✨ Custom Short Code:</label>
+                    <input type="text" name="shortCode" id="shortCode" placeholder="my-link" />
+                </div>
+                <button type="submit">Shorten URL</button>
+            </form>
         <h2>📋 Your Links</h2>
         <ul id="shortened-urls">
             <li class="empty-state">No shortened URLs yet. Create your first one!</li>
@@ -320,63 +320,63 @@
             }
         }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const url = formData.get('url');
-            const shortCode = formData.get('shortCode');
-            
-            // Add loading state
-            submitBtn.classList.add('loading');
-            submitBtn.textContent = 'Shortening...';
-            
-            try {
-                const response = await fetch('/shorten', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ url, shortCode }),
-                });
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const url = formData.get('url');
+                const shortCode = formData.get('shortCode') || undefined;
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    removeEmptyState();
-                    
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    const shortUrl = `${window.location.origin}/${data.shortCode}`;
-                    
-                    a.href = shortUrl;
-                    a.textContent = shortUrl;
-                    a.target = '_blank';
-                    
-                    li.innerHTML = `<strong>Original:</strong> ${url.substring(0, 40)}${url.length > 40 ? '...' : ''}<br><strong>Short:</strong> `;
-                    li.appendChild(a);
-                    
-                    urlsList.insertBefore(li, urlsList.firstChild);
-                    e.target.reset();
-                    
-                    // Copy to clipboard
-                    navigator.clipboard.writeText(shortUrl).then(() => {
-                        const originalText = submitBtn.textContent;
-                        submitBtn.textContent = '✓ Copied to clipboard!';
-                        setTimeout(() => {
-                            submitBtn.textContent = 'Shorten URL';
-                        }, 2000);
+                // Add loading state
+                submitBtn.classList.add('loading');
+                submitBtn.textContent = 'Shortening...';
+                
+                try {
+                    const response = await fetch('/api/shorten', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url, shortCode }),
                     });
-                } else {
-                    const errorData = await response.json();
-                    alert(`Error: ${errorData.error}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        removeEmptyState();
+                        
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        const shortUrl = `${window.location.origin}/${data.shortCode}`;
+                        
+                        a.href = shortUrl;
+                        a.textContent = shortUrl;
+                        a.target = '_blank';
+                        
+                        li.innerHTML = `<strong>Original:</strong> ${url.substring(0, 40)}${url.length > 40 ? '...' : ''}<br><strong>Short:</strong> `;
+                        li.appendChild(a);
+                        
+                        urlsList.insertBefore(li, urlsList.firstChild);
+                        e.target.reset();
+                        
+                        // Copy to clipboard
+                        navigator.clipboard.writeText(shortUrl).then(() => {
+                            const originalText = submitBtn.textContent;
+                            submitBtn.textContent = '✓ Copied to clipboard!';
+                            setTimeout(() => {
+                                submitBtn.textContent = 'Shorten URL';
+                            }, 2000);
+                        });
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Error: ${errorData.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while shortening the URL.');
+                } finally {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.textContent = 'Shorten URL';
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while shortening the URL.');
-            } finally {
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'Shorten URL';
-            }
-        });
+            });
     </script>
 </body>
 </html>
