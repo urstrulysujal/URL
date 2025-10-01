@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>URL Shortener - Modern Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 45px 50px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container h1 {
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2em;
+            font-weight: 700;
+            letter-spacing: -1px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        form {
+            animation: fadeIn 0.8s ease-out 0.6s both;
+        }
+
+        form div {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 0.9em;
+            letter-spacing: 0.3px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .container h2 {
+            margin: 35px 0 20px;
+            color: #333;
+            font-size: 1.4em;
+            font-weight: 600;
+            animation: fadeIn 0.8s ease-out 0.8s both;
+        }
+
+        #shortened-urls {
+            list-style: none;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        #shortened-urls::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #shortened-urls::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #shortened-urls::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        #shortened-urls li {
+            background: linear-gradient(135deg, #f8f9ff 0%, #faf5ff 100%);
+            margin: 10px 0;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            border-left: 4px solid #667eea;
+            animation: slideInLeft 0.4s ease-out;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        #shortened-urls li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        #shortened-urls a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        #shortened-urls a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Loading animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 500px) {
+            .container {
+                padding: 35px 30px;
+            }
+            
+            .container h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ URL Shortener</h1>
+        <p class="subtitle">Transform long URLs into short, shareable links</p>
+        <form id="shorten-form">
+            <div>
+                <label for="url">🔗 Enter URL:</label>
+                <input type="url" name="url" id="url" placeholder="https://example.com/very-long-url" required />
+            </div>
+            <div>
+                <label for="shortCode">✨ Custom Short Code:</label>
+                <input type="text" name="shortCode" id="shortCode" placeholder="my-link" required />
+            </div>
+            <button type="submit">Shorten URL</button>
+        </form>
+        <h2>📋 Your Links</h2>
+        <ul id="shortened-urls">
+            <li class="empty-state">No shortened URLs yet. Create your first one!</li>
+        </ul>
+    </div>
+    <script>
+        const urlsList = document.getElementById('shortened-urls');
+        const form = document.getElementById('shorten-form');
+        const submitBtn = form.querySelector('button');
+
+        // Remove empty state when adding first URL
+        function removeEmptyState() {
+            const emptyState = urlsList.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const url = formData.get('url');
+            const shortCode = formData.get('shortCode');
+            
+            // Add loading state
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Shortening...';
+            
+            try {
+                const response = await fetch('/shorten', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url, shortCode }),
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    removeEmptyState();
+                    
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    const shortUrl = `${window.location.origin}/${data.shortCode}`;
+                    
+                    a.href = shortUrl;
+                    a.textContent = shortUrl;
+                    a.target = '_blank';
+                    
+                    li.innerHTML = `<strong>Original:</strong> ${url.substring(0, 40)}${url.length > 40 ? '...' : ''}<br><strong>Short:</strong> `;
+                    li.appendChild(a);
+                    
+                    urlsList.insertBefore(li, urlsList.firstChild);
+                    e.target.reset();
+                    
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(shortUrl).then(() => {
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = '✓ Copied to clipboard!';
+                        setTimeout(() => {
+                            submitBtn.textContent = 'Shorten URL';
+                        }, 2000);
+                    });
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while shortening the URL.');
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Shorten URL';
+            }
+        });
+    </script>
+</body>
+</html>
