@@ -74,10 +74,6 @@ const server = createServer(async (req, res) => {
             return res.end(JSON.stringify({ error: "No URL provided" }));
         }
         let finalShortCode = shortCode || crypto.randomBytes(4).toString('hex');
-        if (shortCode && links[shortCode]) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            return res.end(JSON.stringify({ error: "Short code already exists" }));
-        }
         while (links[finalShortCode]) {
             finalShortCode = crypto.randomBytes(4).toString('hex');
         }
